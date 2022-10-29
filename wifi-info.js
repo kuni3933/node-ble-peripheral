@@ -13,7 +13,10 @@ function WifiInfo() {
   events.EventEmitter.call(this);
   this.ssid = null;
   this.password = null;
-  if ((data.ssid != null || "") && (data.password != null || "")) {
+  if (
+    (data.ssid != null || data.ssid != "") &&
+    (data.password != null || data.password != "")
+  ) {
     this.ssid = data.ssid;
     this.password = data.password;
   }
@@ -22,6 +25,7 @@ function WifiInfo() {
 util.inherits(WifiInfo, events.EventEmitter);
 
 WifiInfo.prototype.connectCheck = function () {
+  var self = this;
   var result = null;
   wifi
     .connect({ ssid: this.ssid, psk: this.password })
@@ -33,7 +37,7 @@ WifiInfo.prototype.connectCheck = function () {
       console.log(error);
       result = false;
     });
-  this.emit("ready", result);
+  self.emit("ready", result);
 };
 
 module.exports.WifiInfo = WifiInfo;

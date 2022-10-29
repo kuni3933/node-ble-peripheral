@@ -25,10 +25,10 @@ PasswordCharacteristic.prototype.onWriteRequest = function (
   withoutResponse,
   callback
 ) {
-  this.wifi_info.password = data;
+  this.wifi_info.password = Buffer.from(data, "hex").toString("utf-8");
   console.log(
-    "EchoCharacteristic - onReadRequest: password = " +
-      this.wifi_info.password.toString("hex").toString("utf-8")
+    "PasswordCharacteristic - onWriteRequest: password = " +
+      this.wifi_info.password
   );
 
   callback(this.RESULT_SUCCESS);

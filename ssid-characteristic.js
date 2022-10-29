@@ -21,11 +21,13 @@ util.inherits(SsidCharacteristic, bleno.Characteristic);
 
 SsidCharacteristic.prototype.onReadRequest = function (offset, callback) {
   console.log(
-    "EchoCharacteristic - onReadRequest: ssid = " +
-      this.wifi_info.ssid.toString("hex").toString("utf-8")
+    "SsidCharacteristic - onReadRequest: ssid = " + this.wifi_info.ssid
   );
 
-  callback(this.RESULT_SUCCESS, this.wifi_info.ssid);
+  callback(
+    this.RESULT_SUCCESS,
+    this.wifi_info.ssid.split("").map((v) => v.charCodeAt(0).toString("hex"))
+  );
 };
 
 SsidCharacteristic.prototype.onWriteRequest = function (
@@ -34,10 +36,9 @@ SsidCharacteristic.prototype.onWriteRequest = function (
   withoutResponse,
   callback
 ) {
-  this.wifi_info.ssid = data;
+  this.wifi_info.ssid = Buffer.from(data, "hex").toString("utf-8");
   console.log(
-    "EchoCharacteristic - onReadRequest: ssid = " +
-      this.wifi_info.ssid.toString("hex").toString("utf-8")
+    "SsidCharacteristic - onWriteRequest: ssid = " + this.wifi_info.ssid
   );
 
   callback(this.RESULT_SUCCESS);
