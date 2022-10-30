@@ -20,8 +20,12 @@
   },
   "dependencies": {
     "@abandonware/bleno": "^0.5.1-4",
+    "async": "^3.2.0",
     "fs": "^0.0.1-security",
+    "node-linux-wifi": "0.0.2",
+    "node-wifi": "^2.0.14",
     "rpi-wifi-connection": "^1.0.17",
+    "string-to-arraybuffer": "^1.0.2",
     "util": "^0.12.5"
   },
   "resolutions": {
