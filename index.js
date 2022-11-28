@@ -1,20 +1,9 @@
-const uuidConfig = require("./config/config.json");
-constbleno = require("@abandonware/bleno");
-const util = require("util");
-const rpiWifi = require("rpi-wifi-connection");
-const rsn = require("raspi-serial-number");
+let uuidConfig = require("./config/config.json");
+let bleno = require("@abandonware/bleno");
+let util = require("util");
+let rpiWifi = require("rpi-wifi-connection");
+let wifi = new rpiWifi();
 
-const wifi = new rpiWifi();
-const raspPiSerialNumber = rsn
-  .getSerialNumber()
-  .then((number) => {
-    return number;
-  })
-  .catch((err) => {
-    console.log(err);
-    return "83ed5c72";
-  });
-const deviceName = `BerryLock_${raspPiSerialNumber}`;
 let BlenoPrimaryService = bleno.PrimaryService;
 let BlenoCharacteristic = bleno.Characteristic;
 let BlenoDescriptor = bleno.Descriptor;
@@ -44,7 +33,7 @@ let StaticReadOnlyCharacteristic = function () {
     descriptors: [
       new BlenoDescriptor({
         uuid: "2901",
-        value: deviceName,
+        value: "RPI BLE",
       }),
     ],
   });
