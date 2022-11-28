@@ -1,7 +1,7 @@
-import uuidConfig from "./config/config.json";
-import * as bleno from "@abandonware/bleno";
-import * as util from "util";
-import * as rpiWifi from "rpi-wifi-connection";
+const uuidConfig = require("./config/config.json");
+const bleno = require("@abandonware/bleno");
+const util = require("util");
+const rpiWifi = require("rpi-wifi-connection");
 import { getSerialNumber } from "raspi-serial-number";
 
 const wifi = new rpiWifi();
