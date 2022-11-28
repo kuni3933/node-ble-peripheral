@@ -1,11 +1,12 @@
 const uuidConfig = require("./config/config.json");
-const bleno = require("@abandonware/bleno");
+constbleno = require("@abandonware/bleno");
 const util = require("util");
 const rpiWifi = require("rpi-wifi-connection");
-import { getSerialNumber } from "raspi-serial-number";
+const rsn = require("raspi-serial-number");
 
 const wifi = new rpiWifi();
-const raspPiSerialNumber = await getSerialNumber()
+const raspPiSerialNumber = rsn
+  .getSerialNumber()
   .then((number) => {
     return number;
   })
@@ -67,32 +68,38 @@ WriteOnlyCharacteristic.prototype.onWriteRequest = function (
   withoutResponse,
   callback
 ) {
+  console.log("data: " + data);
   let payload = data.toString();
+  console.log("data.toString: " + payload);
 
   // I'd rather using json, but JSON.parse(payload) result in an error I couldn't fix
   let wifiData = payload.split("|");
 
   let ssid = wifiData[0];
   let pwd = wifiData[1];
+  console.log("ssid: " + ssid + "\npass: " + pwd);
   payload = {
     ssid: ssid.replace(/\x00/g, ""),
     password: pwd.replace(/\x00/g, ""),
   };
+  console.log(
+    "payload.ssid: " + payload.ssid + "\npayload.pass: " + payload.password
+  );
+  console.log("\nwifiList\n" + wifiList);
   if (wifiList.includes(payload.ssid)) {
-    wifi.connect(
-      { ssid: payload.ssid, password: payload.password },
-      (error) => {
-        if (error) {
-          this.wifiStatus = '{"status" : "Wrong password"}';
-          console.log(error);
-        } else {
-          console.log("Connected");
-          this.wifiStatus = '{"status" : "Success"}';
-          console.log(this.wifiStatus);
-          bleno.stopAdvertising();
-        }
-      }
-    );
+    console.log(payload.ssid + ": Include wifiList");
+    wifi
+      .connect({ ssid: payload.ssid, psk: payload.password })
+      .then(() => {
+        console.log("Connected");
+        this.wifiStatus = '{"status" : "Success"}';
+        console.log(this.wifiStatus);
+        bleno.stopAdvertising();
+      })
+      .catch((error) => {
+        this.wifiStatus = '{"status" : "Wrong password"}';
+        console.log(error);
+      });
   }
   callback(this.RESULT_SUCCESS);
 };
@@ -139,8 +146,8 @@ DebugOnly.prototype.onReadRequest = function (offset, callback) {
     .then((networks) => {
       networks.forEach((network) => {
         if (network.ssid !== "" && !wifiList.includes(network.ssid)) {
-          wifiList.push(new TextEncoder("utf-8").encode(network.ssid));
-          console.log(data);
+          wifiList.push(network.ssid);
+          //console.log(data);
           console.log("SSID: " + network.ssid);
         }
       });
@@ -223,10 +230,7 @@ bleno.on("stateChange", function (state) {
   console.log("on -> stateChange: " + state + ", address = " + bleno.address);
 
   if (state === "poweredOn") {
-    bleno.startAdvertising(deviceName, [uuidConfig.uuidDevice]);
-    wifi.init({
-      iface: null, // network interface, choose a random wifi interface if set to null
-    });
+    bleno.startAdvertising("RPI BLE", [uuidConfig.uuidDevice]);
   } else {
     bleno.stopAdvertising();
   }
