@@ -4,8 +4,29 @@ import signal
 from EchoCharacteristic import *
 
 print('bleno - echo');
-
 bleno = Bleno()
+
+
+def getserial():
+    # Extract serial from cpuinfo file
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo','r')
+        for line in f:
+            if line[0:6]=='Serial':
+                cpuserial = line[10:26]
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+    return cpuserial
+
+raspPiSerialNumber = getserial()
+deviceName = "BerryLock_" + raspPiSerialNumber
+print("------------------------------")
+print("SerialNumber: " + raspPiSerialNumber)
+print("Initialize: " + deviceName)
+print("------------------------------\n")
+
 
 def onStateChange(state):
     print('on -> stateChange: ' + state);
