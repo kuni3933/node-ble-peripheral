@@ -8,20 +8,21 @@ export class EchoCharacteristic extends bleno.Characteristic {
     super({
       uuid: "ec0e",
       properties: ["read", "write"],
-      value: null,
+      value: undefined,
     });
-    this._value = undefined;
+    this._value = Buffer.alloc(0);
     this._updateValueCallback = undefined;
   }
 
-  onReadRequest(callback) {
+  onReadRequest(offset, callback) {
     console.log(
       "EchoCharacteristic - onReadRequest: value = " +
         this._value.toString("hex")
     );
     callback(this.RESULT_SUCCESS, this._value);
   }
-  onWriteRequest(data, callback) {
+
+  onWriteRequest(data, offset, withoutResponse, callback) {
     this._value = data;
     console.log(
       "EchoCharacteristic - onWriteRequest: value = " +
