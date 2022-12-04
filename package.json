@@ -21,12 +21,10 @@
   },
   "dependencies": {
     "@abandonware/bleno": "^0.5.1-4",
-    "async": "^3.2.0",
     "fs": "^0.0.1-security",
     "raspi-serial-number": "^1.0.6",
     "rpi-wifi-connection": "^1.0.17",
-    "string-to-arraybuffer": "^1.0.2",
-    "util": "^0.12.5"
+    "string-to-arraybuffer": "^1.0.2"
   },
   "resolutions": {
     "@abandonware/bluetooth-hci-socket": "^0.5.3-7"

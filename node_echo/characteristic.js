@@ -1,14 +1,17 @@
 import bleno from "@abandonware/bleno";
 
 export class EchoCharacteristic extends bleno.Characteristic {
+  _value;
+  _updateValueCallback;
+
   constructor() {
     super({
       uuid: "ec0e",
-      properties: ["read", "write", "notify"],
+      properties: ["read", "write"],
       value: null,
     });
-    this._value = Buffer.alloc(0);
-    this._updateValueCallback = null;
+    this._value = undefined;
+    this._updateValueCallback = undefined;
   }
 
   onReadRequest(callback) {
@@ -24,20 +27,6 @@ export class EchoCharacteristic extends bleno.Characteristic {
       "EchoCharacteristic - onWriteRequest: value = " +
         this._value.toString("hex")
     );
-    if (this._updateValueCallback) {
-      console.log("EchoCharacteristic - onWriteRequest: notifying");
-      this._updateValueCallback(this._value);
-    }
     callback(this.RESULT_SUCCESS);
-  }
-
-  onSubscribe(maxValueSize, updateValueCallback) {
-    console.log("EchoCharacteristic - onSubscribe");
-    this._updateValueCallback = updateValueCallback;
-  }
-
-  onUnsubscribe() {
-    console.log("EchoCharacteristic - onUnsubscribe");
-    this._updateValueCallback = null;
   }
 }

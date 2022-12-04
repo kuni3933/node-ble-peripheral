@@ -1,5 +1,5 @@
 import bleno from "@abandonware/bleno";
-import EchoCharacteristic from "./characteristic";
+import { EchoCharacteristic } from "./characteristic.js";
 import { getSerialNumber } from "raspi-serial-number";
 
 const BlenoPrimaryService = bleno.PrimaryService;
@@ -16,22 +16,26 @@ const deviceName = "BerryLock_" + raspPiSerialNumber;
 process.env["BLENO_DEVICE_NAME"] = deviceName;
 
 console.log("bleno - echo");
-print("------------------------------");
-print("SerialNumber: " + raspPiSerialNumber);
-print("Initialize_BLE: " + deviceName);
-print("------------------------------\n");
+console.log("------------------------------");
+console.log("SerialNumber: " + raspPiSerialNumber);
+console.log("Initialize_BLE: " + deviceName);
+console.log("------------------------------\n");
 
-bleno.on("stateChange", function (state) {
+bleno.on("stateChange", (state) => {
   console.log("on -> stateChange: " + state);
 
   if (state === "poweredOn") {
-    bleno.startAdvertising("echo", ["ec00"]);
+    bleno.startAdvertising(deviceName, ["ec00"], (error) => {
+      if (error) {
+        console.log(error);
+      }
+    });
   } else {
     bleno.stopAdvertising();
   }
 });
 
-bleno.on("advertisingStart", function (error) {
+bleno.on("advertisingStart", (error) => {
   console.log(
     "on -> advertisingStart: " + (error ? "error " + error : "success")
   );
@@ -43,5 +47,7 @@ bleno.on("advertisingStart", function (error) {
         characteristics: [new EchoCharacteristic()],
       }),
     ]);
+  } else if (error) {
+    console.log(error);
   }
 });
