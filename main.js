@@ -25,7 +25,7 @@ bleno.on("stateChange", (state) => {
   console.log("on -> stateChange: " + state);
 
   if (state === "poweredOn") {
-    bleno.startAdvertising(deviceName, ["ec00"], (error) => {
+    bleno.startAdvertising("echo", ["ec00"], (error) => {
       if (error) {
         console.log(error);
       }
