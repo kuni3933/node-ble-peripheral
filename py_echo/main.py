@@ -1,3 +1,4 @@
+import os
 from pybleno import *
 import sys
 import signal
@@ -18,10 +19,11 @@ def getserial():
         f.close()
     except:
         cpuserial = "ERROR000000000"
-    return cpuserial
+    return cpuserial.replace("00000000","")
 
 raspPiSerialNumber = getserial()
 deviceName = "BerryLock_" + raspPiSerialNumber
+os.environ["BLENO_DEVICE_NAME"] = deviceName
 print("------------------------------")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)

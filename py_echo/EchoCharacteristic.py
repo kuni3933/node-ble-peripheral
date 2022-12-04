@@ -12,22 +12,22 @@ class EchoCharacteristic(Characteristic):
             'properties': ['read', 'write', 'notify'],
             'value': None
         })
-        self._value = array.array('B', [0] * 0)
+        self._value = None
         self._updateValueCallback = None
 
-    def onReadRequest(self, offset, callback):
-        print('EchoCharacteristic - %s - onReadRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
-        callback(Characteristic.RESULT_SUCCESS, self._value[offset:])
+    def onReadRequest(self, callback):
+        print('EchoCharacteristic - %s - onReadRequest: value = %s' % (self['uuid'], self._value))
+        callback(Characteristic.RESULT_SUCCESS, self._value)
 
-    def onWriteRequest(self, data, offset, withoutResponse, callback):
+    def onWriteRequest(self, data, callback):
         self._value = data
-        print('EchoCharacteristic - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
+        print('EchoCharacteristic - %s - onWriteRequest: value = %s' % (self['uuid'], self._value))
         if self._updateValueCallback:
             print('EchoCharacteristic - onWriteRequest: notifying');
             self._updateValueCallback(self._value)
         callback(Characteristic.RESULT_SUCCESS)
 
-    def onSubscribe(self, maxValueSize, updateValueCallback):
+    def onSubscribe(self, updateValueCallback):
         print('EchoCharacteristic - onSubscribe')
         self._updateValueCallback = updateValueCallback
 
