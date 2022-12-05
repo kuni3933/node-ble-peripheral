@@ -1,5 +1,5 @@
 import bleno from "@abandonware/bleno";
-import { EchoCharacteristic } from "./characteristic.js";
+import { EchoService } from "./service.js";
 import { getSerialNumber } from "raspi-serial-number";
 
 const BlenoPrimaryService = bleno.PrimaryService;
@@ -41,13 +41,41 @@ bleno.on("advertisingStart", (error) => {
   );
 
   if (!error) {
-    bleno.setServices([
-      new BlenoPrimaryService({
-        uuid: "ec00",
-        characteristics: [new EchoCharacteristic()],
-      }),
-    ]);
+    bleno.setServices([new EchoService()]);
   } else {
     console.log(error);
   }
+});
+
+bleno.on("accept", (clientAddress) => {
+  log.debug(`ble central connected: ${clientAddress}`);
+  bleno.updateRssi();
+});
+
+bleno.on("disconnect", (clientAddress) => {
+  log.debug(`ble central disconnected: ${clientAddress}`);
+});
+
+bleno.on("platform", (event) => {
+  log.debug("platform", event);
+});
+
+bleno.on("addressChange", (event) => {
+  log.debug("addressChange", event);
+});
+
+bleno.on("mtuChange", (event) => {
+  log.debug("mtuChange", event);
+});
+
+bleno.on("advertisingStartError", (event) => {
+  log.debug("advertisingStartError", event);
+});
+
+bleno.on("servicesSetError", (event) => {
+  log.debug("servicesSetError", event);
+});
+
+bleno.on("rssiUpdate", (event) => {
+  log.debug("rssiUpdate", event);
 });

@@ -11,13 +11,15 @@ export class EchoCharacteristic extends bleno.Characteristic {
       value: undefined,
     });
     this._value = Buffer.alloc(0);
-    this._updateValueCallback = undefined;
   }
 
   onReadRequest(offset, callback) {
     console.log(
       "EchoCharacteristic - onReadRequest: value = " +
         this._value.toString("hex")
+    );
+    console.log(
+      "EchoCharacteristic - onReadRequest: value = " + this._value + "\n"
     );
     callback(this.RESULT_SUCCESS, this._value);
   }
@@ -27,6 +29,9 @@ export class EchoCharacteristic extends bleno.Characteristic {
     console.log(
       "EchoCharacteristic - onWriteRequest: value = " +
         this._value.toString("hex")
+    );
+    console.log(
+      "EchoCharacteristic - onWriteRequest: value = " + this._value + "\n"
     );
     callback(this.RESULT_SUCCESS);
   }
