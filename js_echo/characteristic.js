@@ -16,7 +16,9 @@ util.inherits(EchoCharacteristic, bleno.Characteristic);
 EchoCharacteristic.prototype.onReadRequest = function (offset, callback) {
   console.log("EchoCharacteristic - onReadRequest: value = " + this._value);
   console.log(
-    "EchoCharacteristic - onReadRequest: value = " + this._value.toString("hex")
+    "EchoCharacteristic - onReadRequest: value = " +
+      this._value.toString("hex") +
+      "\n"
   );
 
   callback(this.RESULT_SUCCESS, this._value);
@@ -33,7 +35,8 @@ EchoCharacteristic.prototype.onWriteRequest = function (
   console.log("EchoCharacteristic - onWriteRequest: value = " + this._value);
   console.log(
     "EchoCharacteristic - onWriteRequest: value = " +
-      this._value.toString("hex")
+      this._value.toString("hex") +
+      "\n"
   );
 
   callback(this.RESULT_SUCCESS);
