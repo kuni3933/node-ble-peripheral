@@ -6,8 +6,6 @@ const EchoService = function () {
     uuid: "ec00",
     characteristics: [new EchoCharacteristic()],
   });
-
-  this._value = Buffer.alloc(0);
 };
 
 util.inherits(EchoService, bleno.PrimaryService);
