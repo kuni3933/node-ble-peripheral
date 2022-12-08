@@ -1,6 +1,6 @@
 const bleno = require("@abandonware/bleno");
-const rsn = require("raspi-serial-number");
 const EchoService = require("./service");
+const rsn = require("raspi-serial-number");
 
 const raspPiSerialNumber = rsn.getSerialNumberSync((error, data) => {
   if (error) {
@@ -16,8 +16,8 @@ process.env["BLENO_DEVICE_NAME"] = deviceName;
 
 console.log("bleno - echo");
 console.log("------------------------------");
-console.log("SerialNumber: " + raspPiSerialNumber);
-console.log("Initialize: " + deviceName);
+console.log(`SerialNumber: ${raspPiSerialNumber}`);
+console.log(`Initialize_BLE: ${deviceName}`);
 console.log("------------------------------\n");
 
 bleno.on("stateChange", function (state) {

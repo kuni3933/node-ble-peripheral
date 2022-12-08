@@ -9,7 +9,6 @@ const EchoCharacteristic = function () {
   });
 
   this._value = Buffer.alloc(0);
-  this._updateValueCallback = null;
 };
 
 util.inherits(EchoCharacteristic, bleno.Characteristic);
