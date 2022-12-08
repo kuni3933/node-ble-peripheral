@@ -1,3 +1,4 @@
+const util = require("util");
 const bleno = require("@abandonware/bleno");
 const EchoCharacteristic = require("./characteristic");
 

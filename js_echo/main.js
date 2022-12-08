@@ -2,7 +2,7 @@ const bleno = require("@abandonware/bleno");
 const rsn = require("raspi-serial-number");
 const EchoService = require("./service");
 
-raspPiSerialNumber = rsn.getSerialNumberSync((error, data) => {
+const raspPiSerialNumber = rsn.getSerialNumberSync((error, data) => {
   if (error) {
     console.log("Callback error: ", error);
     return "Error";
@@ -11,7 +11,7 @@ raspPiSerialNumber = rsn.getSerialNumberSync((error, data) => {
     return data;
   }
 });
-deviceName = "BerryLock_" + raspPiSerialNumber;
+const deviceName = "BerryLock_" + raspPiSerialNumber;
 process.env["BLENO_DEVICE_NAME"] = deviceName;
 
 console.log("bleno - echo");

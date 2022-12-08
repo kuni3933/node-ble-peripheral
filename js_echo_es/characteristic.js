@@ -1,6 +1,6 @@
-import { Characteristic } from "@abandonware/bleno";
+import bleno from "@abandonware/bleno";
 
-export class EchoCharacteristic extends Characteristic {
+export class EchoCharacteristic extends bleno.Characteristic {
   constructor() {
     super({
       uuid: "ec0e",

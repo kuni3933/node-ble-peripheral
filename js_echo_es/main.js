@@ -2,7 +2,7 @@ import bleno from "@abandonware/bleno";
 import { getSerialNumberSync } from "raspi-serial-number";
 import { EchoService } from "./service.js";
 
-raspPiSerialNumber = getSerialNumberSync((error, data) => {
+const raspPiSerialNumber = getSerialNumberSync((error, data) => {
   if (error) {
     console.log("Callback error: ", error);
     return "SerialNumber_3";
@@ -11,7 +11,7 @@ raspPiSerialNumber = getSerialNumberSync((error, data) => {
     return data;
   }
 });
-deviceName = "BerryLock_" + raspPiSerialNumber;
+const deviceName = "BerryLock_" + raspPiSerialNumber;
 process.env["BLENO_DEVICE_NAME"] = deviceName;
 
 console.log("bleno - echo");
