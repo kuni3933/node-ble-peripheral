@@ -2,13 +2,11 @@ import os
 from pybleno import *
 import sys
 import signal
-from EchoCharacteristic import *
+from EchoService import *
 
-print('bleno - echo');
 bleno = Bleno()
 
-
-def getserial():
+def getSerial():
     # Extract serial from cpuinfo file
     cpuserial = "0000000000000000"
     try:
@@ -20,10 +18,11 @@ def getserial():
     except:
         cpuserial = "ERROR000000000"
     return cpuserial.replace("00000000","")
-
-raspPiSerialNumber = getserial()
+raspPiSerialNumber = getSerial()
 deviceName = "BerryLock_" + raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
+
+print('bleno - echo');
 print("------------------------------")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
@@ -44,12 +43,7 @@ def onAdvertisingStart(error):
 
     if not error:
         bleno.setServices([
-            BlenoPrimaryService({
-                'uuid': 'ec00',
-                'characteristics': [
-                    EchoCharacteristic('ec0F')
-                    ]
-            })
+            EchoService('ec00')
         ])
 
 bleno.on('advertisingStart', onAdvertisingStart)
