@@ -22,7 +22,7 @@ raspPiSerialNumber = getSerial()
 deviceName = "BerryLock_" + raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
 
-print("bleno - echo");
+print("bleno - echo")
 print("------------------------------")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
@@ -30,16 +30,17 @@ print("------------------------------\n")
 
 
 def onStateChange(state):
-    print("on -> stateChange: " + state);
+    print("on -> stateChange: " + state)
     if (state == 'poweredOn'):
         bleno.startAdvertising('echo', ['ec00'])
     else:
-        bleno.stopAdvertising();
+        bleno.stopAdvertising()
 
 bleno.on('stateChange', onStateChange)
 
+
 def onAdvertisingStart(error):
-    print("on -> advertisingStart: " + ("error " + error if error else "success"));
+    print("on -> advertisingStart: " + ("error " + error if error else "success"))
 
     if not error:
         bleno.setServices([
@@ -55,13 +56,14 @@ def onAccept(clientAddress):
 
 bleno.on("accept", lambda clientAddress:onAccept(clientAddress))
 
-bleno.on("disconnect", lambda clientAddress: print("ble central disconnected: " + clientAddress));
-bleno.on("platform", lambda event: print("platform" + event));
-bleno.on("addressChange", lambda event: print("addressChange", event));
-bleno.on("mtuChange", lambda event: print("mtuChange", event));
-bleno.on("advertisingStartError", lambda event: print("advertisingStartError", event));
-bleno.on("servicesSetError", lambda event: print("servicesSetError", event));
-bleno.on("rssiUpdate", lambda event: print("rssiUpdate" + event));
+
+bleno.on("disconnect", lambda clientAddress: print("ble central disconnected: " + clientAddress + "\n"))
+bleno.on("platform", lambda event: print("platform" + event))
+bleno.on("addressChange", lambda event: print("addressChange", event))
+bleno.on("mtuChange", lambda event: print("mtuChange", event))
+bleno.on("advertisingStartError", lambda event: print("advertisingStartError", event))
+bleno.on("servicesSetError", lambda event: print("servicesSetError", event))
+#bleno.on("rssiUpdate", lambda event: print("rssiUpdate" + event));
 
 bleno.start()
 
