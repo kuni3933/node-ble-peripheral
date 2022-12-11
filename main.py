@@ -1,11 +1,20 @@
+import json
 import os
 from pybleno import *
 import sys
 import signal
-from EchoService import *
+from Service_Register.Service_Register import Service_Register
+from Service_Wifi.Service_Wifi import Service_Wifi
 
+#* Blenoインスタンスを生成
 bleno = Bleno()
 
+#* ServiceUUID/UUIDをJSONから取り込む
+json_open = open('config/config.json', 'r')
+json_load = json.load(json_open)
+print(json_load)
+
+#* シリアルナンバーを取得するための関数
 def getSerial():
     # Extract serial from cpuinfo file
     cpuserial = "0000000000000000"
@@ -18,6 +27,8 @@ def getSerial():
     except:
         cpuserial = "ERROR000000000"
     return cpuserial.replace("00000000","")
+
+#* シリアルナンバーを取得してデバイスネームを格納
 raspPiSerialNumber = getSerial()
 deviceName = "BerryLock_" + raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
@@ -32,7 +43,7 @@ print("------------------------------\n")
 def onStateChange(state):
     print("on -> stateChange: " + state)
     if (state == 'poweredOn'):
-        bleno.startAdvertising('echo', ['ec00'])
+        bleno.startAdvertising(deviceName)
     else:
         bleno.stopAdvertising()
 
@@ -44,7 +55,8 @@ def onAdvertisingStart(error):
 
     if not error:
         bleno.setServices([
-            EchoService('ec00')
+            Service_Register(json_load['register']['uuidService'],json_load['register']['uuidGetOwner'],json_load['register']['uuidSetOwner'],json_load['register']['uuidUnsetOwner']),
+            Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidGetWifi'],json_load['wifi']['uuidSetWifi'])
         ])
 
 bleno.on("advertisingStart", onAdvertisingStart)

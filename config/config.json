@@ -1,8 +1,13 @@
 {
-  "uuidDevice": "27dc2bcf-6492-476a-b63a-4e419d417a9f",
-  "uuidService": "c640efa6-489e-4694-bfed-73ce0fa15e77",
-  "uuidScanConnect": "d973a488-84f8-4df0-ac83-929dd2fb3bd8",
-  "uuidStatus": "4d549010-bc4c-401a-b9e7-ad486c99ab21",
-  "uuidWifiList": "3cfa6ee2-54d1-11eb-ae93-0242ac130002",
-  "uuidNotification": "8fa7b756-4b3f-43bf-bd15-613b04025d72"
+  "register": {
+    "uuidService": "400178e0-e2be-4f06-8a65-747d39bc8828",
+    "uuidGetOwner": "3e2958c9-4ff4-4ed1-91e3-70ca7eca5641",
+    "uuidSetOwner": "264d9d15-8f81-4a9e-aadd-216a1748320a",
+    "uuidUnsetOwner": "9848c895-7cfe-4c2a-9707-794348cb58a9"
+  },
+  "wifi": {
+    "uuidService": "1edbd9ca-4eda-4a65-880b-a887ae1f2ab3",
+    "uuidGetWifi": "1501b892-83ff-48df-abc6-1fe59d379bb9",
+    "uuidSetWifi": "ebaf415b-c001-449c-bcac-6698f138ff2a"
+  }
 }
