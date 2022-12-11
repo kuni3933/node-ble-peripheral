@@ -40,7 +40,7 @@ bleno.on('stateChange', onStateChange)
 
 
 def onAdvertisingStart(error):
-    print("on -> advertisingStart: " + ("error " + error if error else "success"))
+    print("on -> advertisingStart: " + ("error " + error if error else "success") + "\n")
 
     if not error:
         bleno.setServices([
