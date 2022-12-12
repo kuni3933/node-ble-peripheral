@@ -1,7 +1,7 @@
 from pybleno import BlenoPrimaryService
-from Characteristic_GetOwner import Characteristic_GetOwner
-from Characteristic_SetOwner import Characteristic_SetOwner
-from Characteristic_UnsetOwner import Characteristic_UnsetOwner
+from .Characteristic_GetOwner import Characteristic_GetOwner
+from .Characteristic_SetOwner import Characteristic_SetOwner
+from .Characteristic_UnsetOwner import Characteristic_UnsetOwner
 
 class Service_Register(BlenoPrimaryService):
     #* コンストラクタ

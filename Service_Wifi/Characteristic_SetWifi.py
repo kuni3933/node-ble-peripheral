@@ -1,3 +1,4 @@
+import os
 from pybleno import Characteristic
 import array
 import struct
@@ -14,6 +15,8 @@ class Characteristic_SetWifi(Characteristic):
         })
         self._value = array.array('B', [0] * 0)
         self._updateValueCallback = None
+        print('abspath:     ', os.path.abspath(__file__))
+        print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
         print('Characteristic_SetWifi - %s - onReadRequest: value = %s' % (self['uuid'], [self._value.decode()]))
