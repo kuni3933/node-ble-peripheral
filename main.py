@@ -14,7 +14,7 @@ from Service_Wifi.Service_Wifi import Service_Wifi
 rootDirPath = os.path.dirname(os.path.abspath(__file__))
 
 #* ServiceUUID/UUIDをJSONから取り込む
-json_open = open('config/config.json', 'r')
+json_open = open(rootDirPath + '/config/config.json', 'r')
 json_load = json.load(json_open)
 #print(json_load)
 

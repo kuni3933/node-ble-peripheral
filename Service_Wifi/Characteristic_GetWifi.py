@@ -27,12 +27,13 @@ class Characteristic_GetWifi(Characteristic):
 
         print('Characteristic_GetWifi - %s - onReadRequest: value = %s' % (self['uuid'], isConnect))
         print('Characteristic_GetWifi - %s - onReadRequest: value = %s' % (self['uuid'], returnValue))
+        print('\n')
 
         callback(Characteristic.RESULT_SUCCESS, returnValue)
 
     def onWriteRequest(self, data, offset, withoutResponse, callback):
         self._value = data
-        print('Characteristic_GetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [self._value.decode()]))
+        print('Characteristic_GetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [self._value.decode(encoding='utf-8')]))
         print('Characteristic_GetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
         print('\n')
         callback(Characteristic.RESULT_SUCCESS)
