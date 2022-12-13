@@ -9,11 +9,13 @@ class Characteristic_GetOwner(Characteristic):
     def __init__(self, uuid):
         Characteristic.__init__(self, {
             'uuid': uuid,
-            'properties': ['read', 'write'],
+            'properties': ['read',],
             'value': None
         })
-        self._value = array.array('B', [0] * 0)
+        self._value = "null".encode(encoding='utf-8')
         self._updateValueCallback = None
+        #print('abspath:     ', os.path.abspath(__file__))
+        #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
         print('Characteristic_GetOwner - %s - onReadRequest: value = %s' % (self['uuid'], [self._value.decode()]))

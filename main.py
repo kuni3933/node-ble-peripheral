@@ -1,18 +1,25 @@
 import json
 import os
 from pybleno import *
+import subprocess
 import sys
 import signal
 from Service_Register.Service_Register import Service_Register
 from Service_Wifi.Service_Wifi import Service_Wifi
 
-#* Blenoインスタンスを生成
-bleno = Bleno()
+
+#* main.pyのパス
+#print('abspath:     ', os.path.abspath(__file__))
+#print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
+rootDirPath = os.path.dirname(os.path.abspath(__file__))
 
 #* ServiceUUID/UUIDをJSONから取り込む
 json_open = open('config/config.json', 'r')
 json_load = json.load(json_open)
-print(json_load)
+#print(json_load)
+
+#* Blenoインスタンスを生成
+bleno = Bleno()
 
 #* シリアルナンバーを取得するための関数
 def getSerial():
@@ -33,12 +40,15 @@ raspPiSerialNumber = getSerial()
 deviceName = "BerryLock_" + raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
 
-print("bleno - echo")
 print("------------------------------")
+print("bleno - echo")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
 print("------------------------------\n")
 
+#* wifiの接続を試みる
+res = subprocess.run(['/home/pi/.nodebrew/current/bin/node',rootDirPath + '/index.js','connectFromJson'],capture_output=True, text=True)
+print("captured stdout: {}".format(res.stdout))
 
 def onStateChange(state):
     print("on -> stateChange: " + state)
@@ -56,7 +66,7 @@ def onAdvertisingStart(error):
     if not error:
         bleno.setServices([
             Service_Register(json_load['register']['uuidService'],json_load['register']['uuidGetOwner'],json_load['register']['uuidSetOwner'],json_load['register']['uuidUnsetOwner']),
-            Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidGetWifi'],json_load['wifi']['uuidSetWifi'])
+            Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidGetWifi'],json_load['wifi']['uuidSetWifi'],rootDirPath)
         ])
 
 bleno.on("advertisingStart", onAdvertisingStart)
