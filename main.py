@@ -46,17 +46,18 @@ print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
 print("------------------------------\n")
 
+
 #* wifiの接続を試みる
 try:
-    res = subprocess.run(['/home/pi/.nodebrew/current/bin/node',rootDirPath + '/Service_Wifi/wifi.js','connectFromFile'],capture_output=True, text=True)
+    res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', rootDirPath + '/Service_Wifi/wifi.js','connectFromFile'],capture_output=True, check=True, text=True)
     isConnect = json.loads(res.stdout)
     print(isConnect)
-    print("\n")
+    if(res.stderr):
+        print("---------- Stderr ----------\n" + res.stderr + "\n")
 except Exception as error:
     isConnect["isConnect"] = False
     print(isConnect)
-    print(error)
-    print("\n")
+    print("---------- Error ----------\n" + error + "\n")
 
 
 def onStateChange(state):

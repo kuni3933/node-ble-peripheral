@@ -21,20 +21,21 @@ class Characteristic_GetWifi(Characteristic):
     def onReadRequest(self, offset, callback):
         isConnect = None
         returnValue = None
+        err = None
+
         try:
             res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/Service_Wifi/wifi.js','getStatus'],capture_output=True,check=True, text=True)
             isConnect = json.loads(res.stdout)
             returnValue =  json.dumps(isConnect).encode(encoding='utf-8')
+            if(res.stderr):
+                err += "---------- Stderr ----------\n" + res.stderr
         except Exception as error:
-            print(error)
-            if(error.stdout != None):
-                isConnect = json.loads(error.stdout)
-            else:
-                isConnect["isConnect"] = False
+            isConnect["isConnect"] = False
             returnValue = json.dumps(isConnect).encode(encoding='utf-8')
-
-        print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], isConnect))
-        print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], returnValue))
-        print("\n")
+            err += "---------- Error ----------\n" +  error
+        finally:
+            print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], isConnect))
+            print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], returnValue))
+            print(err + "\n")
 
         callback(Characteristic.RESULT_SUCCESS, returnValue)

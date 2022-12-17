@@ -40,7 +40,7 @@ class wifi {
 
   connect(json) {
     // コマンドライン引数からjsonをパース
-    const jsonDecode = () => {
+    const jsonDecoded = () => {
       try {
         return JSON.parse(json);
       } catch (error) {
@@ -52,18 +52,18 @@ class wifi {
     let returnLog = { isConnect: false };
 
     // 正常にjsonをパース出来ていた場合はconnect
-    if (jsonDecode["ssid"] != undefined && jsonDecode["pass"] != undefined) {
+    if (jsonDecoded["ssid"] != undefined && jsonDecoded["pass"] != undefined) {
       this.wifi
         .connect({
-          ssid: jsonDecode["ssid"],
-          psk: jsonDecode["pass"],
-          timeout: 7500,
+          ssid: jsonDecoded["ssid"],
+          psk: jsonDecoded["pass"],
+          timeout: 8000,
         })
         .then(() => {
           //* ファイル書込
           fs.writeFileSync(
             `${this.configDirPath}/Wifi.json`,
-            `{ "ssid": "${jsonDecode["ssid"]}","pass": "${jsonDecode["pass"]}" }`
+            `{ "ssid": "${jsonDecoded["ssid"]}","pass": "${jsonDecoded["pass"]}" }`
           );
 
           //* リターンログ
