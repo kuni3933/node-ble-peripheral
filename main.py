@@ -41,14 +41,23 @@ deviceName = "BerryLock_" + raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
 
 print("------------------------------")
-print("bleno - echo")
+print("Auto_Lock_BLE_Client")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
 print("------------------------------\n")
 
 #* wifiの接続を試みる
-res = subprocess.run(['/home/pi/.nodebrew/current/bin/node',rootDirPath + '/index.js','connectFromJson'],capture_output=True, text=True)
-print("captured stdout: {}".format(res.stdout))
+try:
+    res = subprocess.run(['/home/pi/.nodebrew/current/bin/node',rootDirPath + '/Service_Wifi/wifi.js','connectFromFile'],capture_output=True, text=True)
+    isConnect = json.loads(res.stdout)
+    print(isConnect)
+    print("\n")
+except Exception as error:
+    isConnect["isConnect"] = False
+    print(isConnect)
+    print(error)
+    print("\n")
+
 
 def onStateChange(state):
     print("on -> stateChange: " + state)

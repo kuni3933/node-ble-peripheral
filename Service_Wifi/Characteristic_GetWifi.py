@@ -15,25 +15,26 @@ class Characteristic_GetWifi(Characteristic):
             'value': None
         })
         self._rootDirPath = rootDirPath
-        self._value = "null".encode(encoding='utf-8')
-        self._updateValueCallback = None
         #print('abspath:     ', os.path.abspath(__file__))
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
-        res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/index.js','getStatus'],capture_output=True, text=True)
-        isConnect = json.loads(res.stdout)
-        returnValue = json.dumps(isConnect).encode(encoding='utf-8')
+        isConnect = None
+        returnValue = None
+        try:
+            res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/Service_Wifi/wifi.js','getStatus'],capture_output=True,check=True, text=True)
+            isConnect = json.loads(res.stdout)
+            returnValue =  json.dumps(isConnect).encode(encoding='utf-8')
+        except Exception as error:
+            print(error)
+            if(error.stdout != None):
+                isConnect = json.loads(error.stdout)
+            else:
+                isConnect["isConnect"] = False
+            returnValue = json.dumps(isConnect).encode(encoding='utf-8')
 
-        print('Characteristic_GetWifi - %s - onReadRequest: value = %s' % (self['uuid'], isConnect))
-        print('Characteristic_GetWifi - %s - onReadRequest: value = %s' % (self['uuid'], returnValue))
-        print('\n')
+        print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], isConnect))
+        print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], returnValue))
+        print("\n")
 
         callback(Characteristic.RESULT_SUCCESS, returnValue)
-
-    def onWriteRequest(self, data, offset, withoutResponse, callback):
-        self._value = data
-        print('Characteristic_GetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [self._value.decode(encoding='utf-8')]))
-        print('Characteristic_GetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
-        print('\n')
-        callback(Characteristic.RESULT_SUCCESS)

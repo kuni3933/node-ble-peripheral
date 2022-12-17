@@ -16,39 +16,28 @@ class Characteristic_SetWifi(Characteristic):
             'value': None
         })
         self._rootDirPath = rootDirPath
-        self._value = "null".encode(encoding='utf-8')
-        self._updateValueCallback = None
         #print('abspath:     ', os.path.abspath(__file__))
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
-    def onReadRequest(self, offset, callback):
-        print('Characteristic_SetWifi - %s - onReadRequest: value = %s' % (self['uuid'], [self._value.decode(encoding='utf-8')]))
-        print('Characteristic_SetWifi - %s - onReadRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
-        print('\n')
-        callback(Characteristic.RESULT_SUCCESS, self._value[offset:])
-
     def onWriteRequest(self, data, offset, withoutResponse, callback):
-        self._value = data
-        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [self._value.decode(encoding='utf-8')]))
-        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in self._value]))
+        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [data.decode(encoding='utf-8')]))
+        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
 
-        jsonLoad = None
+        isConnect = None
         try:
-            jsonLoad = json.loads(data.decode(encoding='utf-8'))
-        except Exception as e:
-            jsonLoad = None
-            print('---------- Error ----------')
-            print(str(e) + '\n')
-
-        if(jsonLoad):
-            res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/index.js','connect',jsonLoad['ssid'],jsonLoad['pass']],capture_output=True, text=True)
+            res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/Service_Wifi/wifi.js','connect','\'' + data.decode(encoding='utf-8') + '\''],capture_output=True, text=True)
             isConnect = json.loads(res.stdout)
+        except Exception as error:
+            print(error)
+            if(error.stdout != None):
+                isConnect = json.loads(error.stdout)
+            else:
+                isConnect["isConnect"] = False
+        finally:
             print(isConnect)
             print('\n')
 
-            if(isConnect['isConnect']):
-                callback(Characteristic.RESULT_SUCCESS)
-            else:
-                callback(Characteristic.RESULT_UNLIKELY_ERROR)
+        if((isConnect != None) & (isConnect["isConnect"] == True)):
+            callback(Characteristic.RESULT_SUCCESS)
         else:
             callback(Characteristic.RESULT_UNLIKELY_ERROR)
