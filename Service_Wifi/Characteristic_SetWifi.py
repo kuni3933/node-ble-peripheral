@@ -20,26 +20,41 @@ class Characteristic_SetWifi(Characteristic):
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onWriteRequest(self, data, offset, withoutResponse, callback):
-        dataDecoded = data.decode(encoding='utf-8')
-        isConnect = None
-        err = None
-
-        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [dataDecoded]))
-        print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
+        dataDecoded = None
+        dataDecodedErr = None
+        isConnect = {"isConnect":False}
 
         try:
-            res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/Service_Wifi/wifi.js','connect'],capture_output=True, check=True, input=dataDecoded,text=True)
-            isConnect = json.loads(res.stdout)
-            if(res.stderr):
-                err += "---------- Stderr ----------\n" + res.stderr
+            dataDecoded = data.decode(encoding='utf-8')
         except Exception as error:
-            isConnect["isConnect"] = False
-            err += "---------- Error ----------\n" +  error
+            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            dataDecodedErr = error
+        else:
+            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [dataDecoded]))
         finally:
-            if((isConnect != None) & (isConnect["isConnect"] == True)):
-                callback(Characteristic.RESULT_SUCCESS)
-            else:
-                callback(Characteristic.RESULT_UNLIKELY_ERROR)
-            print(isConnect)
-            print(err + "\n")
+            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
+            if(dataDecodedErr != None):
+                print("---------- Error ----------\n" + str(dataDecodedErr))
+                dataDecodedErr = None
 
+        if(dataDecoded != None):
+            try:
+                res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', self._rootDirPath + '/Service_Wifi/wifi.js','connect', dataDecoded], capture_output=True, check=True, text=True)
+                isConnect = json.loads(res.stdout)
+                print("  res.args: [" + str(res.args) + "]" )
+                print("  res.returncode: [" + str(res.returncode) + "]" )
+                print("  res.stdout: [" + str(res.stdout) + "]")
+                print("  res.stderr: [" + str(res.stderr) + "]")
+                print("  res.check_returncode: [" + str(res.check_returncode) + "]")
+            except Exception as error:
+                print("---------- Error ----------\n" + str(error))
+                isConnect["isConnect"] = False
+            finally:
+                print(str(isConnect) + "\n")
+                if(isConnect["isConnect"] == True):
+                    callback(Characteristic.RESULT_SUCCESS)
+                else:
+                    callback(Characteristic.RESULT_UNLIKELY_ERROR)
+        else:
+            print(str(isConnect) + "\n")
+            callback(Characteristic.RESULT_UNLIKELY_ERROR)

@@ -44,20 +44,23 @@ print("------------------------------")
 print("Auto_Lock_BLE_Client")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
-print("------------------------------\n")
+print("------------------------------")
 
 
 #* wifiの接続を試みる
 try:
     res = subprocess.run(['/home/pi/.nodebrew/current/bin/node', rootDirPath + '/Service_Wifi/wifi.js','connectFromFile'],capture_output=True, check=True, text=True)
     isConnect = json.loads(res.stdout)
-    print(isConnect)
-    if(res.stderr):
-        print("---------- Stderr ----------\n" + res.stderr + "\n")
+    print("  res.args: [" + str(res.args) + "]")
+    print("  res.returncode: [" + str(res.returncode) + "]")
+    print("  res.stdout: [" + str(res.stdout) + "]")
+    print("  res.stderr: [" + str(res.stderr) + "]")
+    print("  res.check_returncode: [" + str(res.check_returncode) + "]")
 except Exception as error:
     isConnect["isConnect"] = False
-    print(isConnect)
-    print("---------- Error ----------\n" + error + "\n")
+    print("---------- Error ----------\n" + str(error))
+finally:
+    print(str(isConnect) + "\n")
 
 
 def onStateChange(state):
@@ -89,13 +92,13 @@ def onAccept(clientAddress):
 bleno.on("accept", lambda clientAddress:onAccept(clientAddress))
 
 
-bleno.on("disconnect", lambda clientAddress: print("ble central disconnected: " + clientAddress + "\n"))
-bleno.on("platform", lambda event: print("platform" + event))
-bleno.on("addressChange", lambda event: print("addressChange", event))
-bleno.on("mtuChange", lambda event: print("mtuChange", event))
-bleno.on("advertisingStartError", lambda event: print("advertisingStartError", event))
-bleno.on("servicesSetError", lambda event: print("servicesSetError", event))
-#bleno.on("rssiUpdate", lambda event: print("rssiUpdate" + event));
+bleno.on("disconnect", lambda clientAddress: print("ble central disconnected: " + str(clientAddress) + "\n"))
+bleno.on("platform", lambda event: print("platform: " + str(event) + "\n"))
+bleno.on("addressChange", lambda event: print("addressChange: " + str(event) + "\n"))
+bleno.on("mtuChange", lambda event: print("mtuChange: " + str(event) + "\n"))
+bleno.on("advertisingStartError", lambda event: print("advertisingStartError: " + str(event) + "\n"))
+bleno.on("servicesSetError", lambda event: print("servicesSetError: " + str(event) + "\n"))
+bleno.on("rssiUpdate", lambda event: print("rssiUpdate: " + str(event)));
 
 bleno.start()
 

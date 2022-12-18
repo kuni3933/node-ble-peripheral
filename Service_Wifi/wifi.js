@@ -5,24 +5,24 @@ import rpi_wifi_connection from "rpi-wifi-connection";
 
 class wifi {
   //* プロパティ
-  configDirPath;
-  wifi;
+  _configDirPath;
+  _wifi;
 
   //* コンストラクタ
   constructor() {
     //* wifiインスタンスを生成
-    this.wifi = new rpi_wifi_connection();
+    this._wifi = new rpi_wifi_connection();
 
     //* Configディレクトリのパス
-    this.configDirPath = `${path.dirname(
+    this._configDirPath = `${path.dirname(
       fileURLToPath(import.meta.url)
     )}/../../Config`;
-    //console.log(`configDirPath: ${this.configDirPath}`);
+    //process.stdout.write(`_configDirPath: ${this._configDirPath}`);
   }
 
   //* メソッド
-  getStatus() {
-    this.wifi
+  async getStatus() {
+    await this._wifi
       .getStatus()
       .then((status) => {
         if (status.ssid != undefined) {
@@ -30,63 +30,64 @@ class wifi {
         } else {
           status["isConnect"] = false;
         }
-        console.log(JSON.stringify(status));
+        process.stdout.write(JSON.stringify(status));
       })
       .catch((error) => {
-        console.log('{ "isConnect": false }');
+        process.stdout.write(JSON.stringify({ isConnect: false }));
         console.error(error);
       });
   }
 
-  connect(json) {
-    // コマンドライン引数からjsonをパース
-    const jsonDecoded = () => {
-      try {
-        return JSON.parse(json);
-      } catch (error) {
-        console.error(error);
-        return undefined;
-      }
-    };
+  async connect(json) {
     // リターンログ用オブジェクト(初期値:false)
     let returnLog = { isConnect: false };
 
-    // 正常にjsonをパース出来ていた場合はconnect
-    if (jsonDecoded["ssid"] != undefined && jsonDecoded["pass"] != undefined) {
-      this.wifi
-        .connect({
-          ssid: jsonDecoded["ssid"],
-          psk: jsonDecoded["pass"],
-          timeout: 8000,
-        })
-        .then(() => {
-          //* ファイル書込
-          fs.writeFileSync(
-            `${this.configDirPath}/Wifi.json`,
-            `{ "ssid": "${jsonDecoded["ssid"]}","pass": "${jsonDecoded["pass"]}" }`
-          );
+    try {
+      // コマンドライン引数からjsonをパース
+      const jsonDecoded = JSON.parse(json);
 
-          //* リターンログ
-          returnLog["isConnect"] = true;
-          console.log(JSON.stringify(returnLog));
-        })
-        .catch((error) => {
-          //* リターンログ
-          console.log(JSON.stringify(returnLog));
-          console.error(error);
-        });
-    } // パース出来なかった場合
-    else {
-      //* リターンログ
-      console.log(JSON.stringify(returnLog));
+      // 正常にjsonをパース && ssid/passが存在 の場合はconnect
+      if (
+        jsonDecoded["ssid"] != undefined &&
+        jsonDecoded["pass"] != undefined
+      ) {
+        await this._wifi
+          .connect({
+            ssid: jsonDecoded["ssid"],
+            psk: jsonDecoded["pass"],
+            timeout: 7500,
+          })
+          .then(() => {
+            //* ファイル書込
+            fs.writeFileSync(
+              `${this._configDirPath}/Wifi.json`,
+              `{ "ssid": "${jsonDecoded["ssid"]}","pass": "${jsonDecoded["pass"]}" }`
+            );
+
+            //* リターンログをtrue
+            returnLog["isConnect"] = true;
+          })
+          .catch((error) => {
+            throw error;
+          });
+      }
+    } catch (error) {
+      // 再度isConnectをfalse
+      returnLog["isConnect"] = false;
+      console.error(error);
+    } finally {
+      process.stdout.write(JSON.stringify(returnLog));
     }
   }
 
-  connectFromFile() {
+  async connectFromFile() {
     try {
-      this.connect(fs.readFileSync(`${this.configDirPath}/Wifi.json`, "utf-8"));
+      await this.connect(
+        fs.readFileSync(`${this._configDirPath}/Wifi.json`, "utf-8")
+      );
     } catch (error) {
-      console.log('{ "isConnect": false }');
+      process.stdout.write(JSON.stringify({ isConnect: false }));
+      console.error(error);
     }
   }
 }
@@ -94,18 +95,25 @@ class wifi {
 //* main
 // wifiインスタンスを生成
 wifi = new wifi();
+switch (true) {
+  case process.argv[2] === "getStatus":
+    //* getStatusを叩かれた場合
+    await wifi.getStatus();
+    break;
 
-//* getStatusを叩かれた場合
-if (process.argv.length == 3 && process.argv[2] == "getStatus") {
-  wifi.getStatus();
-}
+  case process.argv[2] === "connect" && process.argv[3] != undefined:
+    //* connectを叩かれた場合
+    await wifi.connect(process.argv[3]);
+    break;
 
-//* connectを叩かれた場合
-if (process.argv.length == 4 && process.argv[2] == "connect") {
-  wifi.connect(process.argv[3]);
-}
+  case process.argv[2] === "connectFromFile":
+    //* connectFromFileを叩かれた場合
+    await wifi.connectFromFile();
+    break;
 
-//* connectFromFileを叩かれた場合
-if (process.argv.length == 3 && process.argv[2] == "connectFromFile") {
-  wifi.connectFromFile();
+  default:
+    //* 対処外のコマンド引数を叩かれた場合
+    process.stdout.write(
+      JSON.stringify({ error: "CommandNotFound", isConnect: false })
+    );
 }
