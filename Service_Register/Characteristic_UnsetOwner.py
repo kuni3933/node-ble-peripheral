@@ -26,17 +26,12 @@ class Characteristic_UnsetOwner(Characteristic):
 
         try:
             dataDecoded = data.decode(encoding='utf-8')
+            print('Characteristic_UnsetOwner - %s - onWriteRequest: value = \n%s' % (self['uuid'], [dataDecoded]))
         except Exception as error:
-            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            print('Characteristic_UnsetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            print('Characteristic_UnsetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
+            print("---------- Error ----------\n" + str(error))
             dataDecoded = None
-            dataDecodedErr = error
-        else:
-            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [dataDecoded]))
-        finally:
-            if(dataDecodedErr != None):
-                print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
-                print("---------- Error ----------\n" + str(dataDecodedErr))
-                dataDecodedErr = None
 
         if(dataDecoded != None):
             try:
@@ -45,7 +40,6 @@ class Characteristic_UnsetOwner(Characteristic):
                     'x509' : os.getenv("RASPPI_NUMBER"),
                 }
                 #print(data)
-
                 res = requests.delete(os.getenv("API_URL") + "/v1/rasppi",data=data)
                 print("  res.status_code: [" + str(res.status_code) + "]")
                 print("  res.response.headers:")
@@ -57,8 +51,7 @@ class Characteristic_UnsetOwner(Characteristic):
                 if(res.status_code == 204):
                     isSuccess = True
                     os.remove(self._rootDirPath + "/../Config/customToken.json")
-                else:
-                    isSuccess = False
+                    os.remove(self._rootDirPath + "/../Config/ownerUid.json")
 
             except Exception as error:
                 print("---------- Error ----------\n" + str(error))
