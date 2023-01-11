@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import json
 import os
 from pybleno import *
@@ -13,9 +14,13 @@ from Service_Wifi.Service_Wifi import Service_Wifi
 #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 rootDirPath = os.path.dirname(os.path.abspath(__file__))
 
+#* .envから環境変数を読み込み
+load_dotenv(rootDirPath + "/../Config/.env")
+
 #* ServiceUUID/UUIDをJSONから取り込む
 json_open = open(rootDirPath + '/config/config.json', 'r')
 json_load = json.load(json_open)
+json_open.close()
 #print(json_load)
 
 #* Blenoインスタンスを生成
@@ -38,12 +43,14 @@ def getSerial():
 #* シリアルナンバーを取得してデバイスネームを格納
 raspPiSerialNumber = getSerial()
 deviceName = "BerryLock_" + raspPiSerialNumber
+os.environ["RASPPI_NUMBER"] = raspPiSerialNumber
 os.environ["BLENO_DEVICE_NAME"] = deviceName
 
 print("------------------------------")
 print("Auto_Lock_BLE_Client")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
+print("API_URL: " + os.getenv("API_URL"))
 print("------------------------------")
 
 
@@ -78,7 +85,7 @@ def onAdvertisingStart(error):
 
     if not error:
         bleno.setServices([
-            Service_Register(json_load['register']['uuidService'],json_load['register']['uuidGetOwner'],json_load['register']['uuidSetOwner'],json_load['register']['uuidUnsetOwner']),
+            Service_Register(json_load['register']['uuidService'],json_load['register']['uuidGetOwner'],json_load['register']['uuidSetOwner'],json_load['register']['uuidUnsetOwner'],rootDirPath),
             Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidGetWifi'],json_load['wifi']['uuidSetWifi'],rootDirPath)
         ])
 
