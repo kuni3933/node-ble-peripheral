@@ -55,7 +55,7 @@ class wifi {
           .connect({
             ssid: jsonDecoded["ssid"],
             psk: jsonDecoded["pass"],
-            timeout: 7500,
+            timeout: 15000,
           })
           .then(() => {
             //* ファイル書込

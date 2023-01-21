@@ -38,7 +38,7 @@ def getSerial():
         f.close()
     except:
         cpuserial = "ERROR000000000"
-    return cpuserial.replace("00000000","")
+    return cpuserial
 
 #* シリアルナンバーを取得してデバイスネームを格納
 raspPiSerialNumber = getSerial()
