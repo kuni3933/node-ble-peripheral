@@ -50,6 +50,7 @@ print("------------------------------")
 print("Auto_Lock_BLE_Client")
 print("SerialNumber: " + raspPiSerialNumber)
 print("Initialize: " + deviceName)
+print("Service_UUIDs: " + json_load['serviceUuids'])
 print("API_URL: " + os.getenv("API_URL"))
 print("------------------------------")
 
@@ -73,7 +74,7 @@ finally:
 def onStateChange(state):
     print("on -> stateChange: " + state)
     if (state == 'poweredOn'):
-        bleno.startAdvertising(deviceName)
+        bleno.startAdvertising(deviceName,[json_load['serviceUuids']])
     else:
         bleno.stopAdvertising()
 
