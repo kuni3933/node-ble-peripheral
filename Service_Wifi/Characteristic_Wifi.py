@@ -12,7 +12,7 @@ class Characteristic_Wifi(Characteristic):
     def __init__(self, uuid,rootDirPath):
         Characteristic.__init__(self, {
             'uuid': uuid,
-            'properties': ['write'],
+            'properties': ['read','write'],
             'value': None
         })
         self._rootDirPath = rootDirPath
@@ -35,8 +35,8 @@ class Characteristic_Wifi(Characteristic):
             returnValue = json.dumps(isConnect).encode(encoding='utf-8')
             err = error
         finally:
-            print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], isConnect))
-            print("Characteristic_GetWifi - %s - onReadRequest: value = %s" % (self["uuid"], returnValue))
+            print("Characteristic_Wifi - %s - onReadRequest: value = %s" % (self["uuid"], isConnect))
+            print("Characteristic_Wifi - %s - onReadRequest: value = %s" % (self["uuid"], returnValue))
             if(res != None):
                 print("  res.args: [" + str(res.args) + "]" )
                 print("  res.returncode: [" + str(res.returncode) + "]" )
@@ -57,13 +57,13 @@ class Characteristic_Wifi(Characteristic):
         try:
             dataDecoded = data.decode(encoding='utf-8')
         except Exception as error:
-            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            print('Characteristic_Wifi - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
             dataDecoded = None
             dataDecodedErr = error
         else:
-            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [dataDecoded]))
+            print('Characteristic_Wifi - %s - onWriteRequest: value = %s' % (self['uuid'], [dataDecoded]))
         finally:
-            print('Characteristic_SetWifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
+            print('Characteristic_Wifi - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
             if(dataDecodedErr != None):
                 print("---------- Error ----------\n" + str(dataDecodedErr))
                 dataDecodedErr = None
@@ -82,10 +82,5 @@ class Characteristic_Wifi(Characteristic):
                 isConnect["isConnect"] = False
             finally:
                 print(str(isConnect) + "\n\n")
-                if(isConnect["isConnect"] == True):
-                    callback(Characteristic.RESULT_SUCCESS)
-                else:
-                    callback(Characteristic.RESULT_UNLIKELY_ERROR)
-        else:
-            print(str(isConnect) + "\n\n")
-            callback(Characteristic.RESULT_UNLIKELY_ERROR)
+
+        callback(Characteristic.RESULT_SUCCESS)
