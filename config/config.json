@@ -8,7 +8,6 @@
   },
   "wifi": {
     "uuidService": "1edbd9ca-4eda-4a65-880b-a887ae1f2ab3",
-    "uuidGetWifi": "1501b892-83ff-48df-abc6-1fe59d379bb9",
-    "uuidSetWifi": "ebaf415b-c001-449c-bcac-6698f138ff2a"
+    "uuidWifi": "1501b892-83ff-48df-abc6-1fe59d379bb9"
   }
 }

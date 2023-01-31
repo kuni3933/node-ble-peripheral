@@ -87,7 +87,7 @@ def onAdvertisingStart(error):
     if not error:
         bleno.setServices([
             Service_Register(json_load['register']['uuidService'],json_load['register']['uuidGetOwner'],json_load['register']['uuidSetOwner'],json_load['register']['uuidUnsetOwner'],rootDirPath),
-            Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidGetWifi'],json_load['wifi']['uuidSetWifi'],rootDirPath)
+            Service_Wifi(json_load['wifi']['uuidService'],json_load['wifi']['uuidWifi'],rootDirPath)
         ])
 
 bleno.on("advertisingStart", onAdvertisingStart)
