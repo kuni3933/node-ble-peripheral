@@ -1,5 +1,5 @@
 from pybleno import BlenoPrimaryService
-from .Characteristic_GetWifi import Characteristic_Wifi
+from .Characteristic_Wifi import Characteristic_Wifi
 
 class Service_Wifi(BlenoPrimaryService):
     #* コンストラクタ
