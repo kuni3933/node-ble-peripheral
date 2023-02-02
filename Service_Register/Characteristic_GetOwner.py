@@ -20,7 +20,7 @@ class Characteristic_GetOwner(Characteristic):
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
-        returnValue = onRead()
+        returnValue = onRead("Get",self.uuid,self._rootDirPath)
         """
         # Ownerのuidを初期値としてnullに設定
         ownerUid = {"uid": "Null"}

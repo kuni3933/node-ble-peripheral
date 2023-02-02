@@ -5,7 +5,10 @@ import struct
 import sys
 import traceback
 
-def onRead():
+def onRead(name,uuid,rootDirPath):
+    # パスを組み立てる
+    ownerUidJsonPath = rootDirPath + "/../Config/ownerUid.json"
+
     # Ownerのuidを初期値としてnullに設定
     ownerUid = {"uid": "Null"}
 
@@ -13,14 +16,14 @@ def onRead():
     jsonReadError = None
 
     # ownerUid.jsonがあるか確認
-    isFileExists = os.path.isfile(self._rootDirPath + "/../Config/ownerUid.json")
+    isFileExists = os.path.isfile(ownerUidJsonPath)
     #print(isFileExists)
 
     # ファイルが存在した場合
     if (isFileExists == True):
         try:
             # 読み込んでuidを取得
-            json_open = open(self._rootDirPath + "/../Config/ownerUid.json","r")
+            json_open = open(ownerUidJsonPath,"r")
             ownerUid["uid"] = json.load(json_open)["ownerUid"]
             json_open.close()
             #print(json_load)
@@ -30,8 +33,8 @@ def onRead():
             ownerUid["uid"] = "Null"
 
     returnValue = json.dumps(ownerUid).encode(encoding='utf-8')
-    print('Characteristic_GetOwner - %s - onReadRequest: value = %s' % (self['uuid'], ownerUid))
-    print('Characteristic_GetOwner - %s - onReadRequest: value = %s' % (self['uuid'], returnValue))
+    print('Characteristic_%sOwner - %s - onReadRequest: value = %s' % (name,uuid, ownerUid))
+    print('Characteristic_%sOwner - %s - onReadRequest: value = %s' % (name,uuid, returnValue))
 
     if(jsonReadError != None):
         print("---------- Error ----------\n" + str(jsonReadError))

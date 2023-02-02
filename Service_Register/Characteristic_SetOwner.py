@@ -21,7 +21,7 @@ class Characteristic_SetOwner(Characteristic):
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
-        returnValue = onRead()
+        returnValue = onRead("Unset",self.uuid,self._rootDirPath)
         callback(Characteristic.RESULT_SUCCESS, returnValue)
 
 
