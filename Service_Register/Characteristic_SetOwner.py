@@ -41,12 +41,16 @@ class Characteristic_SetOwner(Characteristic):
             print("---------- Error ----------\n" + str(error))
             dataDecoded = None
 
+        if((dataDecoded != None) & (json.loads(dataDecoded)["idTokenList"] != None )):
+            self.value += json.loads(dataDecoded)["idTokenList"]
+
+
         #* 正常にデコード出来ていたらAPIへトークンPOSTしてcustomTokenを取得
-        if(dataDecoded != None):
+        if((dataDecoded != None) & (json.loads(dataDecoded)["register"] == True)):
             try:
                 #* カスタムトークンの生成
                 dataCustomToken = {
-                    'Token' : json.loads(dataDecoded)["idToken"],
+                    'Token' : self.value,
                     'x509' : os.getenv("RASPPI_NUMBER"),
                 }
                 #print(dataCustomToken)
@@ -105,7 +109,7 @@ class Characteristic_SetOwner(Characteristic):
         if(isSuccess == False and resCustomToken != None and resCustomToken.status_code == 201):
             try:
                 dataUnsetOwner = {
-                    'Token' : json.loads(dataDecoded)["idToken"],
+                    'Token' : self.value,
                     'x509' : os.getenv("RASPPI_NUMBER"),
                 }
                 #print(dataUnsetOwner)
@@ -121,7 +125,7 @@ class Characteristic_SetOwner(Characteristic):
                 print("---------- error ----------\n" + str(error))
 
         print("isSuccess: " + str(isSuccess) + "\n\n")
-        if(isSuccess == True):
-            callback(Characteristic.RESULT_SUCCESS)
-        else:
-            callback(Characteristic.RESULT_UNLIKELY_ERROR)
+        if(json.loads(dataDecoded)["register"] == True):
+            self.value = None
+
+        callback(Characteristic.RESULT_SUCCESS)
