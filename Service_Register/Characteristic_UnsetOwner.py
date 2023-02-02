@@ -1,3 +1,4 @@
+from .onReadRequest import onRead
 from pybleno import Characteristic
 import array
 import json
@@ -12,12 +13,17 @@ class Characteristic_UnsetOwner(Characteristic):
     def __init__(self, uuid,rootDirPath):
         Characteristic.__init__(self, {
             'uuid': uuid,
-            'properties': ['write'],
+            'properties': ['read','write'],
             'value': None
         })
         self._rootDirPath = rootDirPath
         #print('abspath:     ', os.path.abspath(__file__))
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
+
+    def onReadRequest(self, offset, callback):
+        returnValue = onRead()
+        callback(Characteristic.RESULT_SUCCESS, returnValue)
+
 
     def onWriteRequest(self, data, offset, withoutResponse, callback):
         dataDecoded = None

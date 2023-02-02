@@ -1,3 +1,4 @@
+from .onReadRequest import onRead
 from pybleno import Characteristic
 import array
 import json
@@ -19,6 +20,8 @@ class Characteristic_GetOwner(Characteristic):
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
+        returnValue = onRead()
+        """
         # Ownerのuidを初期値としてnullに設定
         ownerUid = {"uid": "Null"}
 
@@ -49,4 +52,5 @@ class Characteristic_GetOwner(Characteristic):
             print("---------- Error ----------\n" + str(jsonReadError))
             jsonReadError = None
         print('\n')
+        """
         callback(Characteristic.RESULT_SUCCESS, returnValue)
