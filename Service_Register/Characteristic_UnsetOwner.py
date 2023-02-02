@@ -14,7 +14,7 @@ class Characteristic_UnsetOwner(Characteristic):
         Characteristic.__init__(self, {
             'uuid': uuid,
             'properties': ['read','write'],
-            'value': None
+            'value': ''
         })
         self._rootDirPath = rootDirPath
         #print('abspath:     ', os.path.abspath(__file__))
@@ -26,23 +26,36 @@ class Characteristic_UnsetOwner(Characteristic):
 
 
     def onWriteRequest(self, data, offset, withoutResponse, callback):
+        isSuccess = False
         dataDecoded = None
         dataDecodedErr = None
-        isSuccess = False
+        jsonLoads = None
+        reqType = None
 
         try:
             dataDecoded = data.decode(encoding='utf-8')
+            jsonLoads = json.loads(dataDecoded)
+            if(jsonLoads["reqType"] != None):
+                reqType = jsonLoads["reqType"]
             print('Characteristic_UnsetOwner - %s - onWriteRequest: value = \n%s' % (self['uuid'], [dataDecoded]))
         except Exception as error:
-            print('Characteristic_UnsetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            if(dataDecoded != None):
+                print('Characteristic_UnsetOwner - %s - onWriteRequest: value = \n%s' % (self['uuid'], [dataDecoded]))
+            else:
+                print('Characteristic_UnsetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
             print('Characteristic_UnsetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
             print("---------- Error ----------\n" + str(error))
             dataDecoded = None
 
-        if(dataDecoded != None):
+        if(reqType == "clear"):
+            self.value = ''
+        if((reqType == "idTokenList") and (jsonLoads["idTokenList"] != None)):
+            self.value += jsonLoads["idTokenList"]
+
+        if(reqType == "unregister"):
             try:
                 data = {
-                    'Token' : json.loads(dataDecoded)["idToken"],
+                    'Token' : self.value,
                     'x509' : os.getenv("RASPPI_NUMBER"),
                 }
                 #print(data)
@@ -64,10 +77,7 @@ class Characteristic_UnsetOwner(Characteristic):
                 isSuccess = False
             finally:
                 print("isSuccess: " + str(isSuccess) + "\n\n")
-                if(isSuccess == True):
-                    callback(Characteristic.RESULT_SUCCESS)
-                else:
-                    callback(Characteristic.RESULT_UNLIKELY_ERROR)
-        else:
-            print("isSuccess: " + str(isSuccess) + "\n\n")
-            callback(Characteristic.RESULT_UNLIKELY_ERROR)
+
+        if(reqType == "unregister"):
+            self.value = ''
+        callback(Characteristic.RESULT_UNLIKELY_ERROR)

@@ -14,39 +14,48 @@ class Characteristic_SetOwner(Characteristic):
         Characteristic.__init__(self, {
             'uuid': uuid,
             'properties': ['read','write'],
-            'value': None
+            'value': ''
         })
         self._rootDirPath = rootDirPath
         #print('abspath:     ', os.path.abspath(__file__))
         #print('abs dirname: ', os.path.dirname(os.path.abspath(__file__)))
 
     def onReadRequest(self, offset, callback):
-        returnValue = onRead("Unset",self.uuid,self._rootDirPath)
+        returnValue = onRead("Set",self.uuid,self._rootDirPath)
         callback(Characteristic.RESULT_SUCCESS, returnValue)
 
 
     def onWriteRequest(self, data, offset, withoutResponse, callback):
         isSuccess = False
         dataDecoded = None
+        jsonLoads = None
+        reqType = None
         resCustomToken = None
         resRefreshToken = None
         resUnsetOwner = None
 
         try:
             dataDecoded = data.decode(encoding='utf-8')
+            jsonLoads = json.loads(dataDecoded)
+            if(jsonLoads["reqType"] != None):
+                reqType = jsonLoads["reqType"]
             print('Characteristic_SetOwner - %s - onWriteRequest: value = \n%s' % (self['uuid'], [dataDecoded]))
         except Exception as error:
-            print('Characteristic_SetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
+            if(dataDecoded != None):
+                print('Characteristic_SetOwner - %s - onWriteRequest: value = \n%s' % (self['uuid'], [dataDecoded]))
+            else:
+                print('Characteristic_SetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], ["Error: Could not decode data to UTF-8."]))
             print('Characteristic_SetOwner - %s - onWriteRequest: value = %s' % (self['uuid'], [hex(c) for c in data]))
             print("---------- Error ----------\n" + str(error))
             dataDecoded = None
 
-        if((dataDecoded != None) & (json.loads(dataDecoded)["idTokenList"] != None )):
-            self.value += json.loads(dataDecoded)["idTokenList"]
-
+        if(reqType == "clear"):
+            self.value = ''
+        if((reqType == "idTokenList") and (jsonLoads["idTokenList"] != None)):
+            self.value += jsonLoads["idTokenList"]
 
         #* 正常にデコード出来ていたらAPIへトークンPOSTしてcustomTokenを取得
-        if((dataDecoded != None) & (json.loads(dataDecoded)["register"] == True)):
+        if(reqType == "register"):
             try:
                 #* カスタムトークンの生成
                 dataCustomToken = {
@@ -64,68 +73,68 @@ class Characteristic_SetOwner(Characteristic):
                 print("  resCustomToken.text: [" + str(resCustomToken.text) + "]")
             except Exception as error:
                 print("---------- error ----------\n" + str(error))
-        #* カスタムトークンを取得できていた場合は、取得トークンを使用してリフレッシュトークンの生成
-        if(resCustomToken != None and resCustomToken.status_code == 201):
-            try:
-                headers = {
-                    'Content-Type': 'application/json',
-                }
-                dataRefreshToken = {
-                    'token' : json.loads(resCustomToken.text)["customToken"],
-                    'returnSecureToken' : True,
-                }
-                #print(dataRefreshToken)
-                resRefreshToken = requests.post("https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=" + os.getenv("FIREBASE_apiKey"),headers=headers, data=json.dumps(dataRefreshToken).encode('utf-8'))
-                print("--resRefreshToken:")
-                print("  resRefreshToken.status_code: [" + str(resRefreshToken.status_code) + "]")
-                print("  resRefreshToken.headers:")
-                for key,value in resRefreshToken.headers.items():
-                    print("    " + key,'   ',value)
-                print("  resRefreshToken.encoding: [" + str(resRefreshToken.encoding) + "]")
-                print("  resRefreshToken.text: [" + str(resRefreshToken.text) + "]")
-                isSuccess = True
-            except Exception as error:
-                print("---------- error ----------\n" + str(error))
 
-        #* customToken/refreshToken の両方が取得できた場合はファイル書き込み
-        if(resCustomToken != None and resCustomToken.status_code == 201 and resRefreshToken != None and resRefreshToken.status_code == 200):
-            try:
-                # ownerUid.json
-                file = open(self._rootDirPath + "/../Config/ownerUid.json","w")
-                file.write(json.dumps({"ownerUid": json.loads(resCustomToken.text)["ownerUid"]},indent=2) + "\n")
-                file.close()
-                # customToken.json
-                file = open(self._rootDirPath + "/../Config/customToken.json","w")
-                file.write(resRefreshToken.text)
-                file.close()
-            except Exception as error:
-                isSuccess = False
-                if(os.path.isfile(self._rootDirPath + "/../Config/ownerUid.json")):
-                    os.remove(self._rootDirPath + "/../Config/ownerUid.json")
-                if(os.path.isfile(self._rootDirPath + "/../Config/customToken.json")):
-                    os.remove(self._rootDirPath + "/../Config/customToken.json")
+            #* カスタムトークンを取得できていた場合は、取得トークンを使用してリフレッシュトークンの生成
+            if(resCustomToken.status_code == 201):
+                try:
+                    headers = {
+                        'Content-Type': 'application/json',
+                    }
+                    dataRefreshToken = {
+                        'token' : json.loads(resCustomToken.text)["customToken"],
+                        'returnSecureToken' : True,
+                    }
+                    #print(dataRefreshToken)
+                    resRefreshToken = requests.post("https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=" + os.getenv("FIREBASE_apiKey"),headers=headers, data=json.dumps(dataRefreshToken).encode('utf-8'))
+                    print("--resRefreshToken:")
+                    print("  resRefreshToken.status_code: [" + str(resRefreshToken.status_code) + "]")
+                    print("  resRefreshToken.headers:")
+                    for key,value in resRefreshToken.headers.items():
+                        print("    " + key,'   ',value)
+                    print("  resRefreshToken.encoding: [" + str(resRefreshToken.encoding) + "]")
+                    print("  resRefreshToken.text: [" + str(resRefreshToken.text) + "]")
+                    isSuccess = True
+                except Exception as error:
+                    print("---------- error ----------\n" + str(error))
 
-        #* カスタムトークンしか取得できなかった/ファイル書き込みに失敗した場合はUnsetのために再度APIへPOST
-        if(isSuccess == False and resCustomToken != None and resCustomToken.status_code == 201):
-            try:
-                dataUnsetOwner = {
-                    'Token' : self.value,
-                    'x509' : os.getenv("RASPPI_NUMBER"),
-                }
-                #print(dataUnsetOwner)
-                print("--resUnsetOwner:")
-                resUnsetOwner = requests.delete(os.getenv("API_URL") + "/v1/rasppi",data = dataUnsetOwner)
-                print("  resUnsetOwner.status_code: [" + str(resUnsetOwner.status_code) + "]")
-                print("  resUnsetOwner.headers:")
-                for key,value in resUnsetOwner.headers.items():
-                    print("    " + key,'   ',value)
-                print("  resUnsetOwner.encoding: [" + str(resUnsetOwner.encoding) + "]")
-                print("  resUnsetOwner.text: [" + str(resUnsetOwner.text) + "]")
-            except Exception as error:
-                print("---------- error ----------\n" + str(error))
+            #* customToken/refreshToken の両方が取得できた場合はファイル書き込み
+            if((resCustomToken.status_code == 201) and (resRefreshToken.status_code == 200)):
+                try:
+                    # ownerUid.json
+                    file = open(self._rootDirPath + "/../Config/ownerUid.json","w")
+                    file.write(json.dumps({"ownerUid": json.loads(resCustomToken.text)["ownerUid"]},indent=2) + "\n")
+                    file.close()
+                    # customToken.json
+                    file = open(self._rootDirPath + "/../Config/customToken.json","w")
+                    file.write(resRefreshToken.text)
+                    file.close()
+                except Exception as error:
+                    isSuccess = False
+                    if(os.path.isfile(self._rootDirPath + "/../Config/ownerUid.json")):
+                        os.remove(self._rootDirPath + "/../Config/ownerUid.json")
+                    if(os.path.isfile(self._rootDirPath + "/../Config/customToken.json")):
+                        os.remove(self._rootDirPath + "/../Config/customToken.json")
 
-        print("isSuccess: " + str(isSuccess) + "\n\n")
-        if(json.loads(dataDecoded)["register"] == True):
-            self.value = None
+            #* カスタムトークンしか取得できなかった/ファイル書き込みに失敗した場合はUnsetのために再度APIへPOST
+            if((isSuccess == False) and (resCustomToken.status_code == 201)):
+                try:
+                    dataUnsetOwner = {
+                        'Token' : self.value,
+                        'x509' : os.getenv("RASPPI_NUMBER"),
+                    }
+                    #print(dataUnsetOwner)
+                    print("--resUnsetOwner:")
+                    resUnsetOwner = requests.delete(os.getenv("API_URL") + "/v1/rasppi",data = dataUnsetOwner)
+                    print("  resUnsetOwner.status_code: [" + str(resUnsetOwner.status_code) + "]")
+                    print("  resUnsetOwner.headers:")
+                    for key,value in resUnsetOwner.headers.items():
+                        print("    " + key,'   ',value)
+                    print("  resUnsetOwner.encoding: [" + str(resUnsetOwner.encoding) + "]")
+                    print("  resUnsetOwner.text: [" + str(resUnsetOwner.text) + "]")
+                except Exception as error:
+                    print("---------- error ----------\n" + str(error))
+                print("isSuccess: " + str(isSuccess) + "\n\n")
 
+        if(reqType == "register"):
+            self.value = ''
         callback(Characteristic.RESULT_SUCCESS)
