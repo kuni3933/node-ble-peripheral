@@ -80,4 +80,4 @@ class Characteristic_UnsetOwner(Characteristic):
 
         if(reqType == "unregister"):
             self.value = ''
-        callback(Characteristic.RESULT_UNLIKELY_ERROR)
+        callback(Characteristic.RESULT_SUCCESS)
