@@ -21,7 +21,7 @@ class Characteristic_GetOwner(Characteristic):
 
     def onReadRequest(self, offset, callback):
         returnValue = onRead("Get",self.uuid,self._rootDirPath)
-        
+        """
         # Ownerのuidを初期値としてnullに設定
         ownerUid = {"uid": "Null"}
 
@@ -52,5 +52,5 @@ class Characteristic_GetOwner(Characteristic):
             print("---------- Error ----------\n" + str(jsonReadError))
             jsonReadError = None
         print('\n')
-        
+        """
         callback(Characteristic.RESULT_SUCCESS, returnValue)
